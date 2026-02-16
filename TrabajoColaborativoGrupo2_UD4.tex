@@ -1,0 +1,860 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{fontspec}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{tocloft}
+\usepackage{microtype}
+\usepackage{amssymb}
+\usepackage{textcomp}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{needspace}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{matrix,positioning,fit,backgrounds}
+\input{macros/karnaugh.tex}
+
+\lstset{
+    language=C,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    frame=single,
+    backgroundcolor=\color{white},
+    aboveskip=6pt,
+    belowskip=6pt
+}
+
+% Configuración de fuente: Verdana 11pt para todo el documento
+\setmainfont[
+  BoldFont=Verdana Bold.ttf,
+  ItalicFont=Verdana Italic.ttf,
+  BoldItalicFont=Verdana Bold Italic.ttf,
+  Path=/System/Library/Fonts/Supplemental/
+]{Verdana.ttf}
+
+\usepackage[spanish,es-tabla]{babel}
+\setstretch{1.5}
+
+\usepackage{graphicx}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\intextsep}{14pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{18pt plus 2pt minus 4pt}
+\setlength{\abovecaptionskip}{10pt}
+\setlength{\belowcaptionskip}{6pt}
+
+\usepackage{csquotes}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\Concepto}{\textbf{Álgebra de Boole}}
+\newcommand{\TituloTrabajo}{\Concepto}
+\newcommand{\cmd}{{\fontspec{Apple Symbols}⌘}}
+
+% Ambiente personalizado para listados normalizados
+\lstnewenvironment{juanListado}[1]
+{%
+    \lstset{%
+        caption={#1},
+        aboveskip=10pt,
+        belowskip=10pt,
+        basicstyle={\setstretch{0.9}\ttfamily\footnotesize},
+        captionpos=b,
+        abovecaptionskip=15pt,
+        belowcaptionskip=15pt
+    }%
+}
+{}
+
+% Ambiente personalizado para listados normalizados sin saltos de página
+\lstnewenvironment{juanListadoNoBreaks}[1]
+{%
+    \needspace{10\baselineskip}%
+    \lstset{%
+        caption={#1},
+        aboveskip=10pt,
+        belowskip=10pt,
+        basicstyle={\setstretch{0.9}\ttfamily\footnotesize},
+        captionpos=b,
+        abovecaptionskip=15pt,
+        belowcaptionskip=15pt
+    }%
+}
+{}
+
+% 4 parámetros: num_entradas, num_salidas, contenido completo, caption
+\newcommand{\tverdad}[4]{%
+  \begin{table}[H]%
+  \centering%
+  \begin{tabular}{|*{#1}{c|}|*{#2}{c|}}%
+    #3%
+  \end{tabular}%
+  \caption{#4}%
+  \end{table}%
+}
+
+% Compilación recomendada (XeLaTeX):
+% xelatex documento.tex
+% biber documento
+% xelatex documento.tex
+% xelatex documento.tex
+
+\title{Trabajo colaborativo UD4 Grupo 2}
+\author{Manuel del Campo Abril\\Igor Lambarri Ostolaza\\Carlos Rodríguez San Miguel\\Juan Manuel Solsona Sagrado}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\pagenumbering{roman}
+
+\tableofcontents
+\newpage
+
+\listoffigures
+\newpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Parte I}
+
+\textbf{Enunciado:}
+
+El objetivo es diseñar un circuito combinacional en el que reciba como entrada un número binario, que llamaremos N, de 4 bits (A,B,C,D) y tenga tres salidas $S_1$, $S_2$ y $S_3$. El circuito realizará las siguientes operaciones:
+\begin{enumerate}
+    \item Si $N \leq 5$, se activa la salida $S_1$, que encendería una luz verde.
+    \item Si $5 < N \leq 10$, se activa la salida $S_3$, que encendería una luz ámbar.
+    \item Si $N > 10$, se activa la salida $S_2$, que encendería una luz roja.
+\end{enumerate}
+
+Se pide:
+\begin{enumerate}
+    \item La tabla de verdad de cada una de las tres salidas.
+    \item Representación numérica de cada función de las 3 salidas en suma de productos y en producto de sumas.
+    \item Aplicar mapas de Karnaugh para simplificación de $S_1$ en suma de productos.
+    \item Aplicar mapas de Karnaugh para simplificación de $S_2$ en suma de productos.
+    \item Aplicar mapas de Karnaugh para simplificación de $S_3$ en suma de productos.
+    \item Supón que tras la simplificación de una de las funciones, se obtiene $S=\bar{A}+BC$. Modifícala para poderla expresar de tal forma que únicamente se implemente con puertas NAND (conversión a puertas NAND).
+    \item Implementar las tres expresiones mínimas obtenidas en los apartados 3, 4 y 5 mediante un circuito con puertas OR, AND y NOT.
+    \item Implementar el mismo circuito en el siguiente simulador: \url{http://weblidi.info.unlp.edu.ar/catedras/organiza/circuitos/editor_simple.html}. Adjuntar pantallazos o enviar un enlace a un vídeo donde se explique qué se ha hecho y se visualice el circuito y la tabla de verdad.
+\end{enumerate}
+
+\textbf{Desarrollo}
+
+\subsection*{Desarrollo de $S_1$}
+\subsubsection*{Tabla de verdad de $S_1$}
+Para poder detectar en A,B,C,D los valores $N \leq 5$ necesitamos definir su tabla de verdad:
+\tverdad{6}{1}{%
+  \hline
+  DEC & A & B & C & D & $S_1$ \\
+  \hline
+  0  & 0 & 0 & 0 & 0 & 1 \\
+  1  & 0 & 0 & 0 & 1 & 1 \\
+  2  & 0 & 0 & 1 & 0 & 1 \\
+  3  & 0 & 0 & 1 & 1 & 1 \\
+  4  & 0 & 1 & 0 & 0 & 1 \\
+  5  & 0 & 1 & 0 & 1 & 1 \\
+  6  & 0 & 1 & 1 & 0 & 0 \\
+  7  & 0 & 1 & 1 & 1 & 0 \\
+  8  & 1 & 0 & 0 & 0 & 0 \\
+  9  & 1 & 0 & 0 & 1 & 0 \\
+  10 & 1 & 0 & 1 & 0 & 0 \\
+  11 & 1 & 0 & 1 & 1 & 0 \\
+  12 & 1 & 1 & 0 & 0 & 0 \\
+  13 & 1 & 1 & 0 & 1 & 0 \\
+  14 & 1 & 1 & 1 & 0 & 0 \\
+  15 & 1 & 1 & 1 & 1 & 0 \\
+  \hline%
+}{Tabla de verdad para $S_1$}
+
+\subsubsection*{Suma de productos de $S_1$}
+Lo cual nos da una representación como suma de productos (minterms donde $S_1 = 1$):
+\begin{align}
+S_1 &= \bar{A}\bar{B}\bar{C}\bar{D} + \bar{A}\bar{B}\bar{C}D + \bar{A}\bar{B}C\bar{D} + \bar{A}\bar{B}CD + \bar{A}B\bar{C}\bar{D} + \bar{A}B\bar{C}D
+\end{align}
+O representado matemáticamente:
+\[S_1 = \sum m(0,1,2,3,4,5)\]
+
+\subsubsection*{Producto de sumas de $S_1$}
+Para hallar el producto de sumas, identificamos los valores donde $S_1 = 0$ (el complemento), negamos cada variable según su valor en la tabla y construimos el productorio de maxterms.
+
+\textbf{Universo complementario:} Los índices donde $S_1 = 0$ son $\{6,7,8,9,10,11,12,13,14,15\}$.
+
+Para cada maxterm, negamos la variable si su bit es 1 y la dejamos sin negar si es 0:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|l|}
+\hline
+\textbf{Índice} & A & B & C & D & \textbf{Maxterm} \\
+\hline
+6  & 0 & 1 & 1 & 0 & $(A + \bar{B} + \bar{C} + D)$ \\
+7  & 0 & 1 & 1 & 1 & $(A + \bar{B} + \bar{C} + \bar{D})$ \\
+8  & 1 & 0 & 0 & 0 & $(\bar{A} + B + C + D)$ \\
+9  & 1 & 0 & 0 & 1 & $(\bar{A} + B + C + \bar{D})$ \\
+10 & 1 & 0 & 1 & 0 & $(\bar{A} + B + \bar{C} + D)$ \\
+11 & 1 & 0 & 1 & 1 & $(\bar{A} + B + \bar{C} + \bar{D})$ \\
+12 & 1 & 1 & 0 & 0 & $(\bar{A} + \bar{B} + C + D)$ \\
+13 & 1 & 1 & 0 & 1 & $(\bar{A} + \bar{B} + C + \bar{D})$ \\
+14 & 1 & 1 & 1 & 0 & $(\bar{A} + \bar{B} + \bar{C} + D)$ \\
+15 & 1 & 1 & 1 & 1 & $(\bar{A} + \bar{B} + \bar{C} + \bar{D})$ \\
+\hline
+\end{tabular}
+\end{center}
+
+Por tanto, el producto de sumas queda:
+\[S_1 = \prod M(6,7,8,9,10,11,12,13,14,15)\]
+
+Expresado de forma expandida:
+\begin{align*}
+S_1 &= (A + \bar{B} + \bar{C} + D)(A + \bar{B} + \bar{C} + \bar{D}) \\
+&\quad \cdot (\bar{A} + B + C + D)(\bar{A} + B + C + \bar{D}) \\
+&\quad \cdot (\bar{A} + B + \bar{C} + D)(\bar{A} + B + \bar{C} + \bar{D}) \\
+&\quad \cdot (\bar{A} + \bar{B} + C + D)(\bar{A} + \bar{B} + C + \bar{D}) \\
+&\quad \cdot (\bar{A} + \bar{B} + \bar{C} + D)(\bar{A} + \bar{B} + \bar{C} + \bar{D})
+\end{align*}
+
+\subsubsection*{Diagrama de Karnaugh de $S_1$}
+
+El diagrama de Karnaugh representa los valores de $S_1$ en orden Gray. Recordemos que el orden de las columnas es 00, 01, 11, 10 (no binario secuencial):
+
+\begin{figure}[H]
+\centering
+\karnaughSimple{AB}{CD}{1,1,1,1, 1,1,0,0, 0,0,0,0, 0,0,0,0}
+\caption{Mapa de Karnaugh para $S_1$ sin agrupar}
+\end{figure}
+
+\subsubsection*{Identificación de grupos}
+
+Buscamos los grupos más grandes posibles de 1s adyacentes (potencias de 2):
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {1,1,1,1, 1,1,0,0, 0,0,0,0, 0,0,0,0}%
+  {0/0/kgroup1, 0/1/kgroup1, 0/2/kgroup1, 0/3/kgroup1}
+\caption{Grupo 1: $\bar{A}\bar{B}$ (4 celdas, fila AB=00)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {1,1,1,1, 1,1,0,0, 0,0,0,0, 0,0,0,0}%
+  {0/0/kgroup1, 0/1/kgroup1, 0/2/kgroup1, 0/3/kgroup1,
+   1/0/kgroup2, 1/1/kgroup2}
+\caption{Grupos identificados: Grupo 1 (rojo) = $\bar{A}\bar{B}$, Grupo 2 (verde) = $\bar{A}B\bar{C}$}
+\end{figure}
+
+\subsubsection*{Análisis de los grupos}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Grupo} & \textbf{Celdas (índices)} & \textbf{Variables constantes} & \textbf{Término} \\
+\hline
+1 (rojo) & 0, 1, 2, 3 & A=0, B=0 & $\bar{A}\bar{B}$ \\
+\hline
+2 (verde) & 4, 5 & A=0, B=1, C=0 & $\bar{A}B\bar{C}$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Explicación del proceso:}
+\begin{itemize}
+    \item \textbf{Grupo 1 (4 celdas):} Cubre toda la fila AB=00. Las variables C y D cambian de valor dentro del grupo, por lo que se eliminan. Solo A=0 y B=0 permanecen constantes, dando el término $\bar{A}\bar{B}$.
+    \item \textbf{Grupo 2 (2 celdas):} Cubre las posiciones donde AB=01 y CD=00,01. La variable D cambia, por lo que se elimina. Las variables constantes son A=0, B=1, C=0, dando el término $\bar{A}B\bar{C}$.
+\end{itemize}
+
+\subsubsection*{Expresión simplificada de $S_1$}
+
+Sumando los términos de cada grupo:
+\[
+\boxed{S_1 = \bar{A}\bar{B} + \bar{A}B\bar{C}}
+\]
+
+Esta expresión puede simplificarse algebraicamente factorizando $\bar{A}$:
+\begin{align*}
+S_1 &= \bar{A}\bar{B} + \bar{A}B\bar{C} \\
+    &= \bar{A}(\bar{B} + B\bar{C}) \\
+    &= \bar{A}(\bar{B} + \bar{C}) \quad \text{(por absorción: } X + \bar{X}Y = X + Y\text{)}
+\end{align*}
+
+Por tanto, la expresión mínima es:
+\[
+\boxed{S_1 = \bar{A}(\bar{B} + \bar{C})}
+\]
+
+\subsubsection*{Verificación}
+
+Comprobamos que la expresión simplificada produce los mismos resultados:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{N} & A & B & C & D & $\bar{A}(\bar{B}+\bar{C})$ & ¿Correcto? \\
+\hline
+0  & 0 & 0 & 0 & 0 & $1 \cdot (1+1) = 1$ & \checkmark \\
+1  & 0 & 0 & 0 & 1 & $1 \cdot (1+1) = 1$ & \checkmark \\
+2  & 0 & 0 & 1 & 0 & $1 \cdot (1+0) = 1$ & \checkmark \\
+3  & 0 & 0 & 1 & 1 & $1 \cdot (1+0) = 1$ & \checkmark \\
+4  & 0 & 1 & 0 & 0 & $1 \cdot (0+1) = 1$ & \checkmark \\
+5  & 0 & 1 & 0 & 1 & $1 \cdot (0+1) = 1$ & \checkmark \\
+6  & 0 & 1 & 1 & 0 & $1 \cdot (0+0) = 0$ & \checkmark \\
+7  & 0 & 1 & 1 & 1 & $1 \cdot (0+0) = 0$ & \checkmark \\
+8  & 1 & 0 & 0 & 0 & $0 \cdot (1+1) = 0$ & \checkmark \\
+\hline
+\end{tabular}
+\end{center}
+
+La expresión $S_1 = \bar{A}(\bar{B} + \bar{C})$ es correcta y equivale a detectar $N \leq 5$.
+
+\newpage
+
+\subsection*{Desarrollo de $S_3$}
+\subsubsection*{Tabla de verdad de $S_3$}
+Para poder detectar en A,B,C,D los valores $5 < N \leq 10$ necesitamos definir su tabla de verdad:
+\tverdad{6}{1}{%
+  \hline
+  DEC & A & B & C & D & $S_3$ \\
+  \hline
+  0  & 0 & 0 & 0 & 0 & 0 \\
+  1  & 0 & 0 & 0 & 1 & 0 \\
+  2  & 0 & 0 & 1 & 0 & 0 \\
+  3  & 0 & 0 & 1 & 1 & 0 \\
+  4  & 0 & 1 & 0 & 0 & 0 \\
+  5  & 0 & 1 & 0 & 1 & 0 \\
+  6  & 0 & 1 & 1 & 0 & 1 \\
+  7  & 0 & 1 & 1 & 1 & 1 \\
+  8  & 1 & 0 & 0 & 0 & 1 \\
+  9  & 1 & 0 & 0 & 1 & 1 \\
+  10 & 1 & 0 & 1 & 0 & 1 \\
+  11 & 1 & 0 & 1 & 1 & 0 \\
+  12 & 1 & 1 & 0 & 0 & 0 \\
+  13 & 1 & 1 & 0 & 1 & 0 \\
+  14 & 1 & 1 & 1 & 0 & 0 \\
+  15 & 1 & 1 & 1 & 1 & 0 \\
+  \hline%
+}{Tabla de verdad para $S_3$}
+
+\subsubsection*{Suma de productos de $S_3$}
+Lo cual nos da una representación como suma de productos (minterms donde $S_3 = 1$):
+\begin{align}
+S_3 &= \bar{A}BC\bar{D} + \bar{A}BCD + A\bar{B}\bar{C}\bar{D} + A\bar{B}\bar{C}D + A\bar{B}C\bar{D}
+\end{align}
+O representado matemáticamente:
+\[S_3 = \sum m(6,7,8,9,10)\]
+
+\subsubsection*{Producto de sumas de $S_3$}
+Para hallar el producto de sumas, identificamos los valores donde $S_3 = 0$ (el complemento), negamos cada variable según su valor en la tabla y construimos el productorio de maxterms.
+
+\textbf{Universo complementario:} Los índices donde $S_3 = 0$ son $\{0,1,2,3,4,5,11,12,13,14,15\}$.
+
+Para cada maxterm, negamos la variable si su bit es 1 y la dejamos sin negar si es 0:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|l|}
+\hline
+\textbf{Índice} & A & B & C & D & \textbf{Maxterm} \\
+\hline
+0  & 0 & 0 & 0 & 0 & $(A + B + C + D)$ \\
+1  & 0 & 0 & 0 & 1 & $(A + B + C + \bar{D})$ \\
+2  & 0 & 0 & 1 & 0 & $(A + B + \bar{C} + D)$ \\
+3  & 0 & 0 & 1 & 1 & $(A + B + \bar{C} + \bar{D})$ \\
+4  & 0 & 1 & 0 & 0 & $(A + \bar{B} + C + D)$ \\
+5  & 0 & 1 & 0 & 1 & $(A + \bar{B} + C + \bar{D})$ \\
+11 & 1 & 0 & 1 & 1 & $(\bar{A} + B + \bar{C} + \bar{D})$ \\
+12 & 1 & 1 & 0 & 0 & $(\bar{A} + \bar{B} + C + D)$ \\
+13 & 1 & 1 & 0 & 1 & $(\bar{A} + \bar{B} + C + \bar{D})$ \\
+14 & 1 & 1 & 1 & 0 & $(\bar{A} + \bar{B} + \bar{C} + D)$ \\
+15 & 1 & 1 & 1 & 1 & $(\bar{A} + \bar{B} + \bar{C} + \bar{D})$ \\
+\hline
+\end{tabular}
+\end{center}
+
+Por tanto, el producto de sumas queda:
+\[S_3 = \prod M(0,1,2,3,4,5,11,12,13,14,15)\]
+
+Expresado de forma expandida:
+\begin{align*}
+S_3 &= (A + B + C + D)(A + B + C + \bar{D}) \\
+&\quad \cdot (A + B + \bar{C} + D)(A + B + \bar{C} + \bar{D}) \\
+&\quad \cdot (A + \bar{B} + C + D)(A + \bar{B} + C + \bar{D}) \\
+&\quad \cdot (\bar{A} + B + \bar{C} + \bar{D}) \\
+&\quad \cdot (\bar{A} + \bar{B} + C + D)(\bar{A} + \bar{B} + C + \bar{D}) \\
+&\quad \cdot (\bar{A} + \bar{B} + \bar{C} + D)(\bar{A} + \bar{B} + \bar{C} + \bar{D})
+\end{align*}
+
+\subsubsection*{Diagrama de Karnaugh de $S_3$}
+
+El diagrama de Karnaugh representa los valores de $S_3$ en orden Gray. Recordemos que el orden de las columnas es 00, 01, 11, 10 (no binario secuencial):
+
+\begin{figure}[H]
+\centering
+\karnaughSimple{AB}{CD}{0,0,0,0, 0,0,1,1, 0,0,0,0, 1,1,0,1}
+\caption{Mapa de Karnaugh para $S_3$ sin agrupar}
+\end{figure}
+
+\subsubsection*{Identificación de grupos}
+
+Buscamos los grupos más grandes posibles de 1s adyacentes (potencias de 2):
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {0,0,0,0, 0,0,1,1, 0,0,0,0, 1,1,0,1}%
+  {3/0/kgroup1, 3/1/kgroup1}
+\caption{Grupo 1: $A\bar{B}\bar{C}$ (2 celdas, AB=10, CD=00,01)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {0,0,0,0, 0,0,1,1, 0,0,0,0, 1,1,0,1}%
+  {1/2/kgroup3, 1/3/kgroup3}
+\caption{Grupo 2: $\bar{A}BC$ (2 celdas, AB=01, CD=11,10)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {0,0,0,0, 0,0,1,1, 0,0,0,0, 1,1,0,1}%
+  {3/3/kgroup2}
+\caption{Grupo 3: $A\bar{B}C\bar{D}$ (1 celda, AB=10, CD=10)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {0,0,0,0, 0,0,1,1, 0,0,0,0, 1,1,0,1}%
+  {3/0/kgroup1, 3/1/kgroup1, 1/2/kgroup3, 1/3/kgroup3, 3/3/kgroup2}
+\caption{Todos los grupos: Rojo = $A\bar{B}\bar{C}$, Azul = $\bar{A}BC$, Verde = $A\bar{B}C\bar{D}$}
+\end{figure}
+
+\subsubsection*{Análisis de los grupos}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Grupo} & \textbf{Celdas (índices)} & \textbf{Variables constantes} & \textbf{Término} \\
+\hline
+1 (rojo) & 8, 9 & A=1, B=0, C=0 & $A\bar{B}\bar{C}$ \\
+\hline
+2 (azul) & 6, 7 & A=0, B=1, C=1 & $\bar{A}BC$ \\
+\hline
+3 (verde) & 10 & A=1, B=0, C=1, D=0 & $A\bar{B}C\bar{D}$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Explicación del proceso:}
+\begin{itemize}
+    \item \textbf{Grupo 1 (2 celdas):} Cubre las posiciones donde AB=10 y CD=00,01. La variable D cambia, por lo que se elimina. Las variables constantes son A=1, B=0, C=0, dando el término $A\bar{B}\bar{C}$.
+    \item \textbf{Grupo 2 (2 celdas):} Cubre las posiciones donde AB=01 y CD=11,10. La variable D cambia, por lo que se elimina. Las variables constantes son A=0, B=1, C=1, dando el término $\bar{A}BC$.
+    \item \textbf{Grupo 3 (1 celda):} Celda aislada en AB=10, CD=10. No se puede agrupar con otras celdas. Todas las variables son constantes: A=1, B=0, C=1, D=0, dando el término $A\bar{B}C\bar{D}$.
+\end{itemize}
+
+\subsubsection*{Expresión simplificada de $S_3$}
+
+Sumando los términos de cada grupo:
+\[
+\boxed{S_3 = A\bar{B}\bar{C} + \bar{A}BC + A\bar{B}C\bar{D}}
+\]
+
+Esta expresión puede simplificarse parcialmente factorizando $A\bar{B}$:
+\begin{align*}
+S_3 &= A\bar{B}\bar{C} + \bar{A}BC + A\bar{B}C\bar{D} \\
+    &= A\bar{B}(\bar{C} + C\bar{D}) + \bar{A}BC \\
+    &= A\bar{B}(\bar{C} + \bar{D}) + \bar{A}BC \quad \text{(por absorción: } X + \bar{X}Y = X + Y\text{)}
+\end{align*}
+
+Por tanto, la expresión mínima es:
+\[
+\boxed{S_3 = A\bar{B}(\bar{C} + \bar{D}) + \bar{A}BC}
+\]
+
+\subsubsection*{Verificación}
+
+Comprobamos que la expresión simplificada produce los mismos resultados para $5 < N \leq 10$:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{N} & A & B & C & D & $A\bar{B}(\bar{C}+\bar{D}) + \bar{A}BC$ & ¿Correcto? \\
+\hline
+5  & 0 & 1 & 0 & 1 & $0 + 0 \cdot 1 \cdot 0 = 0$ & \checkmark \\
+6  & 0 & 1 & 1 & 0 & $0 + 1 \cdot 1 \cdot 1 = 1$ & \checkmark \\
+7  & 0 & 1 & 1 & 1 & $0 + 1 \cdot 1 \cdot 1 = 1$ & \checkmark \\
+8  & 1 & 0 & 0 & 0 & $1 \cdot 1 \cdot (1+1) + 0 = 1$ & \checkmark \\
+9  & 1 & 0 & 0 & 1 & $1 \cdot 1 \cdot (1+0) + 0 = 1$ & \checkmark \\
+10 & 1 & 0 & 1 & 0 & $1 \cdot 1 \cdot (0+1) + 0 = 1$ & \checkmark \\
+11 & 1 & 0 & 1 & 1 & $1 \cdot 1 \cdot (0+0) + 0 = 0$ & \checkmark \\
+12 & 1 & 1 & 0 & 0 & $1 \cdot 0 \cdot (1+1) + 0 = 0$ & \checkmark \\
+\hline
+\end{tabular}
+\end{center}
+
+La expresión $S_3 = A\bar{B}(\bar{C} + \bar{D}) + \bar{A}BC$ es correcta y equivale a detectar $5 < N \leq 10$.
+
+\newpage
+
+\subsection*{Desarrollo de $S_2$}
+\subsubsection*{Tabla de verdad de $S_2$}
+Para poder detectar en A,B,C,D los valores $N > 10$ necesitamos definir su tabla de verdad:
+\tverdad{6}{1}{%
+  \hline
+  DEC & A & B & C & D & $S_2$ \\
+  \hline
+  0  & 0 & 0 & 0 & 0 & 0 \\
+  1  & 0 & 0 & 0 & 1 & 0 \\
+  2  & 0 & 0 & 1 & 0 & 0 \\
+  3  & 0 & 0 & 1 & 1 & 0 \\
+  4  & 0 & 1 & 0 & 0 & 0 \\
+  5  & 0 & 1 & 0 & 1 & 0 \\
+  6  & 0 & 1 & 1 & 0 & 0 \\
+  7  & 0 & 1 & 1 & 1 & 0 \\
+  8  & 1 & 0 & 0 & 0 & 0 \\
+  9  & 1 & 0 & 0 & 1 & 0 \\
+  10 & 1 & 0 & 1 & 0 & 0 \\
+  11 & 1 & 0 & 1 & 1 & 1 \\
+  12 & 1 & 1 & 0 & 0 & 1 \\
+  13 & 1 & 1 & 0 & 1 & 1 \\
+  14 & 1 & 1 & 1 & 0 & 1 \\
+  15 & 1 & 1 & 1 & 1 & 1 \\
+  \hline%
+}{Tabla de verdad para $S_2$}
+
+\subsubsection*{Suma de productos de $S_2$}
+Lo cual nos da una representación como suma de productos (minterms donde $S_2 = 1$):
+\begin{align}
+S_2 &= A\bar{B}CD + AB\bar{C}\bar{D} + AB\bar{C}D + ABC\bar{D} + ABCD
+\end{align}
+O representado matemáticamente:
+\[S_2 = \sum m(11,12,13,14,15)\]
+
+\subsubsection*{Producto de sumas de $S_2$}
+Para hallar el producto de sumas, identificamos los valores donde $S_2 = 0$ (el complemento), negamos cada variable según su valor en la tabla y construimos el productorio de maxterms.
+
+\textbf{Universo complementario:} Los índices donde $S_2 = 0$ son $\{0,1,2,3,4,5,6,7,8,9,10\}$.
+
+Para cada maxterm, negamos la variable si su bit es 1 y la dejamos sin negar si es 0:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|l|}
+\hline
+\textbf{Índice} & A & B & C & D & \textbf{Maxterm} \\
+\hline
+0  & 0 & 0 & 0 & 0 & $(A + B + C + D)$ \\
+1  & 0 & 0 & 0 & 1 & $(A + B + C + \bar{D})$ \\
+2  & 0 & 0 & 1 & 0 & $(A + B + \bar{C} + D)$ \\
+3  & 0 & 0 & 1 & 1 & $(A + B + \bar{C} + \bar{D})$ \\
+4  & 0 & 1 & 0 & 0 & $(A + \bar{B} + C + D)$ \\
+5  & 0 & 1 & 0 & 1 & $(A + \bar{B} + C + \bar{D})$ \\
+6  & 0 & 1 & 1 & 0 & $(A + \bar{B} + \bar{C} + D)$ \\
+7  & 0 & 1 & 1 & 1 & $(A + \bar{B} + \bar{C} + \bar{D})$ \\
+8  & 1 & 0 & 0 & 0 & $(\bar{A} + B + C + D)$ \\
+9  & 1 & 0 & 0 & 1 & $(\bar{A} + B + C + \bar{D})$ \\
+10 & 1 & 0 & 1 & 0 & $(\bar{A} + B + \bar{C} + D)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+Por tanto, el producto de sumas queda:
+\[S_2 = \prod M(0,1,2,3,4,5,6,7,8,9,10)\]
+
+Expresado de forma expandida:
+\begin{align*}
+S_2 &= (A + B + C + D)(A + B + C + \bar{D}) \\
+&\quad \cdot (A + B + \bar{C} + D)(A + B + \bar{C} + \bar{D}) \\
+&\quad \cdot (A + \bar{B} + C + D)(A + \bar{B} + C + \bar{D}) \\
+&\quad \cdot (A + \bar{B} + \bar{C} + D)(A + \bar{B} + \bar{C} + \bar{D}) \\
+&\quad \cdot (\bar{A} + B + C + D)(\bar{A} + B + C + \bar{D}) \\
+&\quad \cdot (\bar{A} + B + \bar{C} + D)
+\end{align*}
+
+\subsubsection*{Diagrama de Karnaugh de $S_2$}
+
+El diagrama de Karnaugh representa los valores de $S_2$ en orden Gray. Recordemos que el orden de las columnas es 00, 01, 11, 10 (no binario secuencial):
+
+\begin{figure}[H]
+\centering
+\karnaughSimple{AB}{CD}{0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,1,0}
+\caption{Mapa de Karnaugh para $S_2$ sin agrupar}
+\end{figure}
+
+\subsubsection*{Identificación de grupos}
+
+Buscamos los grupos más grandes posibles de 1s adyacentes (potencias de 2):
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,1,0}%
+  {2/0/kgroup1, 2/1/kgroup1, 2/2/kgroup1, 2/3/kgroup1}
+\caption{Grupo 1: $AB$ (4 celdas, fila AB=11 completa)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,1,0}%
+  {2/2/kgroup2, 3/2/kgroup2}
+\caption{Grupo 2: $ACD$ (2 celdas, CD=11, A=1)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\karnaughCuatro{AB}{CD}%
+  {0,0,0,0, 0,0,0,0, 1,1,1,1, 0,0,1,0}%
+  {2/0/kgroup1, 2/1/kgroup1, 2/2/kgroup1, 2/3/kgroup1, 3/2/kgroup2}
+\caption{Todos los grupos: Rojo = $AB$, Verde = $ACD$}
+\end{figure}
+
+\subsubsection*{Análisis de los grupos}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Grupo} & \textbf{Celdas (índices)} & \textbf{Variables constantes} & \textbf{Término} \\
+\hline
+1 (rojo) & 12, 13, 14, 15 & A=1, B=1 & $AB$ \\
+\hline
+2 (verde) & 11, 15 & A=1, C=1, D=1 & $ACD$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Explicación del proceso:}
+\begin{itemize}
+    \item \textbf{Grupo 1 (4 celdas):} Cubre toda la fila AB=11. Las variables C y D cambian de valor dentro del grupo, por lo que se eliminan. Solo A=1 y B=1 permanecen constantes, dando el término $AB$.
+    \item \textbf{Grupo 2 (2 celdas):} Cubre las posiciones donde CD=11 y A=1 (índices 11 y 15). La variable B cambia, por lo que se elimina. Las variables constantes son A=1, C=1, D=1, dando el término $ACD$.
+\end{itemize}
+
+\subsubsection*{Expresión simplificada de $S_2$}
+
+Sumando los términos de cada grupo:
+\[
+\boxed{S_2 = AB + ACD}
+\]
+
+Esta expresión puede simplificarse factorizando $A$:
+\begin{align*}
+S_2 &= AB + ACD \\
+    &= A(B + CD)
+\end{align*}
+
+Por tanto, la expresión mínima es:
+\[
+\boxed{S_2 = A(B + CD)}
+\]
+
+\subsubsection*{Verificación}
+
+Comprobamos que la expresión simplificada produce los mismos resultados para $N > 10$:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{N} & A & B & C & D & $A(B + CD)$ & ¿Correcto? \\
+\hline
+9  & 1 & 0 & 0 & 1 & $1 \cdot (0 + 0) = 0$ & \checkmark \\
+10 & 1 & 0 & 1 & 0 & $1 \cdot (0 + 0) = 0$ & \checkmark \\
+11 & 1 & 0 & 1 & 1 & $1 \cdot (0 + 1) = 1$ & \checkmark \\
+12 & 1 & 1 & 0 & 0 & $1 \cdot (1 + 0) = 1$ & \checkmark \\
+13 & 1 & 1 & 0 & 1 & $1 \cdot (1 + 0) = 1$ & \checkmark \\
+14 & 1 & 1 & 1 & 0 & $1 \cdot (1 + 0) = 1$ & \checkmark \\
+15 & 1 & 1 & 1 & 1 & $1 \cdot (1 + 1) = 1$ & \checkmark \\
+0  & 0 & 0 & 0 & 0 & $0 \cdot (0 + 0) = 0$ & \checkmark \\
+\hline
+\end{tabular}
+\end{center}
+
+La expresión $S_2 = A(B + CD)$ es correcta y equivale a detectar $N > 10$.
+
+\newpage
+
+\subsection*{Conversión a puertas NAND}
+
+\subsubsection*{Enunciado}
+Supón que tras la simplificación de una de las funciones, se obtiene $S = \bar{A} + BC$. Modifícala para poderla expresar de tal forma que únicamente se implemente con puertas NAND.
+
+\subsubsection*{Desarrollo}
+
+Aplicamos doble negación y De Morgan:
+\begin{align*}
+S &= \bar{A} + BC \\
+  &= \overline{\overline{\bar{A} + BC}} \\
+  &= \overline{\overline{\bar{A}} \cdot \overline{BC}} \\
+  &= \overline{A \cdot \overline{BC}}
+\end{align*}
+
+\subsubsection*{Resultado}
+
+\[
+\boxed{S = \overline{A \cdot \overline{BC}} = \text{NAND}(A, \text{NAND}(B, C))}
+\]
+
+El circuito se implementa con \textbf{2 puertas NAND}.
+
+\newpage
+
+\subsection*{Implementación con puertas OR, AND y NOT}
+
+Las tres expresiones mínimas obtenidas son:
+
+\begin{center}
+\begin{tabular}{|c|c|l|c|}
+\hline
+\textbf{Salida} & \textbf{Condición} & \textbf{Expresión mínima} & \textbf{Puertas} \\
+\hline
+$S_1$ & $N \leq 5$ & $\bar{A}(\bar{B} + \bar{C})$ & 3 NOT, 1 OR, 1 AND \\
+\hline
+$S_2$ & $N > 10$ & $A(B + CD)$ & 2 AND, 1 OR \\
+\hline
+$S_3$ & $5 < N \leq 10$ & $A\bar{B}(\bar{C} + \bar{D}) + \bar{A}BC$ & 4 NOT, 2 OR, 4 AND \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsubsection*{Circuito para $S_1 = \bar{A}(\bar{B} + \bar{C})$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{imagenes/S1.png}
+\caption{Circuito de $S_1$ con puertas NOT, OR y AND}
+\end{figure}
+
+\subsubsection*{Circuito para $S_2 = A(B + CD)$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{imagenes/S2.png}
+\caption{Circuito de $S_2$ con puertas AND y OR}
+\end{figure}
+
+\subsubsection*{Circuito para $S_3 = A\bar{B}(\bar{C} + \bar{D}) + \bar{A}BC$}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/S3.png}
+\caption{Circuito de $S_3$ con puertas NOT, OR y AND}
+\end{figure}
+
+\newpage
+
+\subsection*{Implementación en simulador}
+
+\newpage
+
+\subsection*{Verificación en simulador}
+
+Los circuitos no han sido implementados y verificados en el simulador:
+\url{http://weblidi.info.unlp.edu.ar/catedras/organiza/circuitos/editor_simple.html}, sin embargo se ha usado:\url{https://logic.ly/demo/}
+
+
+A continuación se muestran las 16 combinaciones posibles de entrada y su resultado esperado:
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_0.jpg}
+\caption{N=0 (A=0, B=0, C=0, D=0) — Esperado: $S_1$=1, $S_2$=0, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_1.jpg}
+\caption{N=1 (A=0, B=0, C=0, D=1) — Esperado: $S_1$=1, $S_2$=0, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_2.jpg}
+\caption{N=2 (A=0, B=0, C=1, D=0) — Esperado: $S_1$=1, $S_2$=0, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_3.jpg}
+\caption{N=3 (A=0, B=0, C=1, D=1) — Esperado: $S_1$=1, $S_2$=0, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_4.jpg}
+\caption{N=4 (A=0, B=1, C=0, D=0) — Esperado: $S_1$=1, $S_2$=0, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_5.jpg}
+\caption{N=5 (A=0, B=1, C=0, D=1) — Esperado: $S_1$=1, $S_2$=0, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_6.jpg}
+\caption{N=6 (A=0, B=1, C=1, D=0) — Esperado: $S_1$=0, $S_2$=0, $S_3$=1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_7.jpg}
+\caption{N=7 (A=0, B=1, C=1, D=1) — Esperado: $S_1$=0, $S_2$=0, $S_3$=1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_8.jpg}
+\caption{N=8 (A=1, B=0, C=0, D=0) — Esperado: $S_1$=0, $S_2$=0, $S_3$=1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_9.jpg}
+\caption{N=9 (A=1, B=0, C=0, D=1) — Esperado: $S_1$=0, $S_2$=0, $S_3$=1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_10.jpg}
+\caption{N=10 (A=1, B=0, C=1, D=0) — Esperado: $S_1$=0, $S_2$=0, $S_3$=1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_11.jpg}
+\caption{N=11 (A=1, B=0, C=1, D=1) — Esperado: $S_1$=0, $S_2$=1, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_12.jpg}
+\caption{N=12 (A=1, B=1, C=0, D=0) — Esperado: $S_1$=0, $S_2$=1, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_13.jpg}
+\caption{N=13 (A=1, B=1, C=0, D=1) — Esperado: $S_1$=0, $S_2$=1, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_14.jpg}
+\caption{N=14 (A=1, B=1, C=1, D=0) — Esperado: $S_1$=0, $S_2$=1, $S_3$=0}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{imagenes/SIM_15.jpg}
+\caption{N=15 (A=1, B=1, C=1, D=1) — Esperado: $S_1$=0, $S_2$=1, $S_3$=0}
+\end{figure}
+\end{document}

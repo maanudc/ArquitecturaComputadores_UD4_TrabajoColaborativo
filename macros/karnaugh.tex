@@ -1,0 +1,58 @@
+% === COLORES PREDEFINIDOS PARA AGRUPACIONES ===
+\definecolor{kgroup1}{RGB}{255,200,200}  % Rojo claro
+\definecolor{kgroup2}{RGB}{200,255,200}  % Verde claro
+\definecolor{kgroup3}{RGB}{200,200,255}  % Azul claro
+\definecolor{kgroup4}{RGB}{255,255,180}  % Amarillo claro
+\definecolor{kgroup5}{RGB}{255,200,255}  % Magenta claro
+\definecolor{kgroup6}{RGB}{200,255,255}  % Cian claro
+
+% === MACRO PRINCIPAL PARA KARNAUGH DE 4 VARIABLES ===
+% Uso: \karnaughCuatro{AB}{CD}{v0,v1,...,v15}{fila/col/color, ...}
+\newcommand{\karnaughCuatro}[4]{%
+\begin{tikzpicture}[scale=0.8]
+  \def\cellsize{1.2}
+  
+  % Dibujar celdas con colores de fondo PRIMERO
+  \foreach \row/\col/\bgcolor in {#4} {
+    \fill[\bgcolor] (\col*\cellsize, -\row*\cellsize) rectangle ++(\cellsize,-\cellsize);
+  }
+  
+  % Grid principal
+  \draw[thick] (0,0) rectangle (4*\cellsize,-4*\cellsize);
+  \draw (0,-\cellsize) -- (4*\cellsize,-\cellsize);
+  \draw (0,-2*\cellsize) -- (4*\cellsize,-2*\cellsize);
+  \draw (0,-3*\cellsize) -- (4*\cellsize,-3*\cellsize);
+  \draw (\cellsize,0) -- (\cellsize,-4*\cellsize);
+  \draw (2*\cellsize,0) -- (2*\cellsize,-4*\cellsize);
+  \draw (3*\cellsize,0) -- (3*\cellsize,-4*\cellsize);
+  
+  % Etiqueta de variables (filas)
+  \node[font=\bfseries] at (-0.6, -2*\cellsize) {#1};
+  % Etiqueta de variables (columnas)
+  \node[font=\bfseries] at (2*\cellsize, 0.6) {#2};
+  
+  % Código Gray para columnas (CD)
+  \node at (0.5*\cellsize, 0.25) {00};
+  \node at (1.5*\cellsize, 0.25) {01};
+  \node at (2.5*\cellsize, 0.25) {11};
+  \node at (3.5*\cellsize, 0.25) {10};
+  
+  % Código Gray para filas (AB)
+  \node at (-0.35, -0.5*\cellsize) {00};
+  \node at (-0.35, -1.5*\cellsize) {01};
+  \node at (-0.35, -2.5*\cellsize) {11};
+  \node at (-0.35, -3.5*\cellsize) {10};
+  
+  % Colocar valores en las celdas
+  \foreach \val [count=\i from 0] in {#3} {
+    \pgfmathtruncatemacro{\row}{int(\i/4)}
+    \pgfmathtruncatemacro{\col}{mod(\i,4)}
+    \node at (\col*\cellsize + 0.5*\cellsize, -\row*\cellsize - 0.5*\cellsize) {\val};
+  }
+\end{tikzpicture}%
+}
+
+% === MACRO SIMPLIFICADA SIN COLORES ===
+\newcommand{\karnaughSimple}[3]{%
+  \karnaughCuatro{#1}{#2}{#3}{}%
+}

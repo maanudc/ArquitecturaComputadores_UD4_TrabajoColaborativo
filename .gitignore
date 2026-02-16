@@ -1,0 +1,167 @@
+# =============================================================================
+# LaTeX - Archivos temporales de compilación
+# =============================================================================
+
+# Archivos auxiliares principales
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+
+# Archivos de índices
+*.idx
+*.ilg
+*.ind
+
+# Archivos de bibliografía
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+
+# Archivos de nomenclatura
+*.nlo
+*.nls
+
+# Archivos de glosario
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.ist
+
+# Archivos intermedios
+*.dvi
+*.xdv
+*.ps
+*.eps_tex
+
+# Archivos de sincronización (SyncTeX)
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+
+# Latexmk
+*.fdb_latexmk
+*.pdfsync
+
+# Beamer (presentaciones)
+*.nav
+*.pre
+*.snm
+*.vrb
+
+# Archivos de paquetes específicos
+*.maf
+*.mlf
+*.mlt
+*.mtc*
+*.spl
+*.soc
+*.loa
+*.loe
+
+# Archivos de hyperref
+*.brf
+
+# Archivos de minitoc
+*.maf
+*.mlf
+*.mlt
+*.mtc[0-9]*
+*.slf[0-9]*
+*.slt[0-9]*
+*.stc[0-9]*
+
+# Archivos de todonotes
+*.tdo
+
+# Archivos de easy-hierarchies
+*.lox
+
+# Archivos de xindy
+*.xdy
+
+# Archivos de TikZ/PGF
+*.dpth
+*.md5
+*.auxlock
+
+# =============================================================================
+# Editores y IDEs
+# =============================================================================
+
+# TeXstudio
+*.txss
+
+# TeXnicCenter
+*.tcp
+*.tps
+
+# Texmaker
+*.listing
+
+# Kile
+*.backup
+
+# =============================================================================
+# Sistema operativo
+# =============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# =============================================================================
+# Archivos generados que se pueden regenerar
+# =============================================================================
+
+# PDF generado (descomentar si no quieres incluir el PDF en el repo)
+# *.pdf
+
+# Directorio de archivos convertidos por Inkscape
+# svg-inkscape/
+
+# =============================================================================
+# Archivos temporales generales
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# =============================================================================
+# Notas
+# =============================================================================
+# El PDF final (TrabajoColaborativoGrupo2_UD4.pdf) NO está ignorado
+# para que pueda compartirse fácilmente sin necesidad de compilar.
+#
+# Si prefieres no incluir el PDF en el repositorio, descomenta la línea:
+# *.pdf
