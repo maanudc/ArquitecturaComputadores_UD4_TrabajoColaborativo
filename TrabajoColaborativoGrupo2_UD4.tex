@@ -761,6 +761,34 @@ Los circuitos no han sido implementados y verificados en el simulador:
 
 Conviene indicar que, N esta implementado por las entradas A,B,C,D, siendo ${N_0 -> D}$, ${N_1 -> C}$, ${N_2 -> B}$ y ${N_3 -> A}$, en otras palabras, D es LSB, y A es MSB de N
 
+Como el simulador no crea tablas de verdad sobre el circuito, esta es la tabla de verdad para N y S:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{N} & ABCD & $S_1$ & $S_2$ & $S_3$ & ¿Correcto? \\
+\hline
+0 & $N_A=0$ $N_B=0$ $N_C=0$ $N_D=0$ & 1 & 0 & 0   & \checkmark \\
+1 & $N_A=0$ $N_B=0$ $N_C=0$ $N_D=1$ & 1 & 0 & 0   & \checkmark \\
+2 & $N_A=0$ $N_B=0$ $N_C=1$ $N_D=0$ & 1 & 0 & 0   & \checkmark \\
+3 & $N_A=0$ $N_B=0$ $N_C=1$ $N_D=1$ & 1 & 0 & 0   & \checkmark \\
+4 & $N_A=0$ $N_B=1$ $N_C=0$ $N_D=0$ & 1 & 0 & 0   & \checkmark \\
+5 & $N_A=0$ $N_B=1$ $N_C=0$ $N_D=1$ & 1 & 0 & 0   & \checkmark \\
+6 & $N_A=0$ $N_B=1$ $N_C=1$ $N_D=0$ & 0 & 0 & 1   & \checkmark \\
+7 & $N_A=0$ $N_B=1$ $N_C=1$ $N_D=1$ & 0 & 0 & 1   & \checkmark \\
+8 & $N_A=1$ $N_B=0$ $N_C=0$ $N_D=0$ & 0 & 0 & 1   & \checkmark \\
+9 & $N_A=1$ $N_B=0$ $N_C=0$ $N_D=1$ & 0 & 0 & 1   & \checkmark \\
+10 & $N_A=1$ $N_B=0$ $N_C=1$ $N_D=0$ & 0 & 0 & 1   & \checkmark \\
+11 & $N_A=1$ $N_B=0$ $N_C=1$ $N_D=1$ & 0 & 1 & 0   & \checkmark \\
+12 & $N_A=1$ $N_B=1$ $N_C=0$ $N_D=0$ & 0 & 1 & 0   & \checkmark \\
+13 & $N_A=1$ $N_B=1$ $N_C=0$ $N_D=1$ & 0 & 1 & 0   & \checkmark \\
+14 & $N_A=1$ $N_B=1$ $N_C=1$ $N_D=0$ & 0 & 1 & 0   & \checkmark \\
+15 & $N_A=1$ $N_B=1$ $N_C=1$ $N_D=1$ & 0 & 1 & 0   & \checkmark \\
+\hline
+\end{tabular}
+\end{center}
+
+
 
 A continuación se muestran las 16 combinaciones posibles de entrada y su resultado esperado:
 
